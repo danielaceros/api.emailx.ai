@@ -107,7 +107,7 @@ def getEmails():
                 cleantext = st.decode("utf-8").replace("\n"," ").strip()
                 ct = cleantext.split()
                 sub = ' '.join(ct[:200])
-                openai.organization = os.getenv('ORG_KEY')"org-sB447O8rt52Ojn3ybUPQezwJ"
+                openai.organization = os.getenv('ORG_KEY')
                 openai.api_key = os.getenv('API_KEY')
                 msg = [
                     {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
