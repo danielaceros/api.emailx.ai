@@ -1,6 +1,7 @@
 from flask import Flask
 import os
 import traceback
+from dotenv import load_dotenv
 from googleapiclient.discovery import build 
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
@@ -11,6 +12,7 @@ import json
 import openai
 import logging
 
+load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the SCOPES. If modifying it, delete the token.pickle file. 
@@ -106,7 +108,7 @@ def getEmails():
                 ct = cleantext.split()
                 sub = ' '.join(ct[:200])
                 openai.organization = "org-sB447O8rt52Ojn3ybUPQezwJ"
-                openai.api_key = "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"
+                openai.api_key = os.getenv('API_KEY')
                 msg = [
                     {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
                     ]
