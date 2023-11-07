@@ -7,13 +7,9 @@ from google.auth.transport.requests import Request
 import pickle 
 import os.path 
 import base64 
-import email 
-from bs4 import BeautifulSoup 
 import json
 import openai
-import pandas as pd
 import logging
-import re
 
 logging.basicConfig(level=logging.DEBUG)
 
