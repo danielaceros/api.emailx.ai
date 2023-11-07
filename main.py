@@ -81,21 +81,24 @@ def getEmails():
 
                 # The Body of the message is in Encrypted format. So, we have to decode it. 
                 # Get the data and decode it with base 64 decoder. 
-                parts = payload.get('parts')[0]
                 st = b''
-                if(parts['body']['size']) != 0:
-                    data = parts['body']['data'].replace("-","+").replace("_","/") 
+                if payload.get('parts') != None:
+                    parts = payload['parts'][0]
+                    if(parts['body']['size']) != 0:
+                        data = parts['body']['data'].replace("-","+").replace("_","/") 
+                        decoded_data = base64.b64decode(data) 
+                        st = decoded_data + st
+                    else:
+                        data = parts['parts']
+                        for d in data:
+                            for i in d['parts']:
+                                data = i['body']['data'].replace("-","+").replace("_","/") 
+                                decoded_data = base64.b64decode(data) 
+                                st = decoded_data + st
+                else:
+                    data = payload['body']['data'].replace("-","+").replace("_","/") 
                     decoded_data = base64.b64decode(data) 
                     st = decoded_data + st
-                else:
-                    data = parts['parts']
-                    for d in data:
-                        for i in d['parts']:
-                            data = i['body']['data'].replace("-","+").replace("_","/") 
-                            decoded_data = base64.b64decode(data) 
-                            st = decoded_data + st
-                print(json.dumps(d, indent=4))
-
                 # Now, the data obtained is in lxml. So, we will parse 
                 # it with BeautifulSoup library 
 
@@ -103,7 +106,7 @@ def getEmails():
                 ct = cleantext.split()
                 sub = ' '.join(ct[:200])
                 openai.organization = "org-sB447O8rt52Ojn3ybUPQezwJ"
-                openai.api_key = "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"
+                openai.api_key = "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"
                 msg = [
                     {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
                     ]
