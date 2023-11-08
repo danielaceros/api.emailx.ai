@@ -20,8 +20,11 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 app = Flask(__name__)
 
-@app.route("/v1/getsummary")
+@app.route("/v1/test")
+def status():
+    return "<p>Server Running...</p>"
 
+@app.route("/v1/getsummary")
 def getEmails(): 
     # Variable creds will store the user access token. 
     # If no valid token found, we will create one. 
@@ -136,4 +139,4 @@ def getEmails():
 
 
 if __name__ == "__main__":
-   app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 5000)))
+   app.run(ssl_context="adhoc",debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 5000)))
