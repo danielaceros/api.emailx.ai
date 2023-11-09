@@ -22,7 +22,7 @@ app = Flask(__name__)
 
 @app.route("/v1/test")
 def status():
-    return "<p>Server Running...</p>"
+    return "<p>🤖 Server Running...</p>"
 
 @app.route("/v1/getsummary")
 def getEmails(): 
