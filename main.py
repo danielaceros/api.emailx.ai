@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import os
 import traceback
 from dotenv import load_dotenv
@@ -28,6 +28,9 @@ def status():
 def getEmails(): 
     # Variable creds will store the user access token. 
     # If no valid token found, we will create one. 
+    args = request.args.get("r")
+    if args == None:
+        args = 1
     creds = None
 
     # The file token.pickle contains the user access token. 
@@ -54,7 +57,7 @@ def getEmails():
     service = build('gmail', 'v1', credentials=creds) 
 
     # request a list of all the messages 
-    result = service.users().messages().list(maxResults=1, userId='me').execute() 
+    result = service.users().messages().list(maxResults=int(args), userId='me').execute() 
 
     # We can also pass maxResults to get any number of emails. Like this: 
     # result = service.users().messages().list(maxResults=200, userId='me').execute() 
