@@ -64,7 +64,7 @@ def getEmails():
     messages = result.get('messages') 
 
     # messages is a list of dictionaries where each dictionary contains a message id. 
-
+    msgslist = []
     # iterate through all the messages 
     for msg in messages: 
         # Get the message from its id 
@@ -131,15 +131,18 @@ def getEmails():
                     "snippet":snippet,
                     "summary":reply
                 }
-                if msgs:    
-                    return msgs
+                if msgs:
+                    msgslist.append(msgs)
                 else:
-                    return ""
+                    pass
             else:
                 pass
         except Exception as e: 
             logging.error(traceback.format_exc())
-
+    try:
+        return msgslist
+    except Exception as e:
+        logging.error(traceback.format_exc())
 
 if __name__ == "__main__":
    app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 5000)))
