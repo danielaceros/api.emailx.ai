@@ -1,4 +1,6 @@
 Flask==2.2.2
+Flask-CORS==3.0.10
+python-dotenv==0.19.1
 google_api_python_client==2.83.0
 google_auth_oauthlib==1.0.0
 openai==0.28.1
