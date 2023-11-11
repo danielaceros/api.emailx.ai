@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_cors import CORS
 import os
 import traceback
 from dotenv import load_dotenv
@@ -19,6 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'] 
 
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route("/v1/test")
 def status():
