@@ -12,6 +12,9 @@ import base64
 import json
 import openai
 import logging
+import requests
+import json
+from heyoo import WhatsApp
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
@@ -26,6 +29,13 @@ CORS(app)
 @app.route("/v1/test")
 def status():
     return "<p>🤖 Server Running...</p>"
+
+@app.route("/v1/whatsapp/test")
+def whatsapp():
+    messenger = WhatsApp('EAAEmZB6Ke8OgBOzgqTwcCjRoZAzG4vAlytNEUfbb6LTXUysLVG8ZB99VqMLbAZA1P9hMmzPfWWjlSe5jHzzaIZBfZAldQxuRY7Hh3Nzmz9whZAZAOLDKF7yHEMDIGoQXGxyr7p4LjNhcSsTrCmzSWMjdsEXWmnaAmE2UbIHKpeeI9PlaXAwLvrxqF5LZAp43DZCZBpBbKbZBBZAw5lp3x3rSoEcUZD',  phone_number_id='157728167427201')
+    messenger.send_message('Your message ', '34629819696')
+    print(messenger.url)
+    return "<p></p>"
 
 @app.route("/v1/getsummary")
 def getEmails(): 
@@ -143,6 +153,9 @@ def getEmails():
         except Exception as e: 
             logging.error(traceback.format_exc())
     try:
+        messenger = WhatsApp('EAAEmZB6Ke8OgBOzgqTwcCjRoZAzG4vAlytNEUfbb6LTXUysLVG8ZB99VqMLbAZA1P9hMmzPfWWjlSe5jHzzaIZBfZAldQxuRY7Hh3Nzmz9whZAZAOLDKF7yHEMDIGoQXGxyr7p4LjNhcSsTrCmzSWMjdsEXWmnaAmE2UbIHKpeeI9PlaXAwLvrxqF5LZAp43DZCZBpBbKbZBBZAw5lp3x3rSoEcUZD',  phone_number_id='157728167427201')
+        for ms in msgslist:
+            messenger.send_message("🧔🏻 "+ms['sender']+"\n📅 "+ms['date']+"\n🤖 "+ms['summary'], '34629819696')
         return msgslist
     except Exception as e:
         logging.error(traceback.format_exc())
