@@ -10,6 +10,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
 import pickle 
+import re
 import webbrowser    
 import os.path 
 import nest_asyncio
@@ -160,8 +161,10 @@ async def getEmail(uidx, idx):
                         data = payload['body']['data'].replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data) 
                         st = decoded_data + st
-                    cleantext = st.decode("utf-8").replace("\n"," ").strip()
-                    ct = cleantext.split()
+                    clean = re.compile('<.*?>')
+                    cleantext = st.decode("utf-8")
+                    clss = re.sub(clean, '', cleantext)
+                    ct = clss.replace("\n"," ").strip().split()
                     sub = ' '.join(ct[:100])
                     reply = await summary(sub)
                     msgs = {
