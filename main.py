@@ -59,6 +59,7 @@ def oauth2callback():
     cr = credentials.to_json() 
     with open(uid+".json", "w+") as c:
         c.write(cr)
+    redirect("http://app.emailx.es")
 
 @app.route("/v1/oauth", methods=['GET', 'POST'])
 async def main():
