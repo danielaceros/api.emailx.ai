@@ -4,23 +4,20 @@ from flask import Flask, request, redirect
 import flask
 from flask_cors import CORS
 import os
-import traceback
 from dotenv import load_dotenv
 from googleapiclient.discovery import build 
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
 import pickle 
+import re
 import webbrowser    
 import os.path 
 import nest_asyncio
 import base64 
 import json
-import httplib2
 import requests_async as res
 import openai
 import logging
-import asyncio
-import aiohttp
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from apiclient.discovery import build
@@ -160,8 +157,10 @@ async def getEmail(uidx, idx):
                         data = payload['body']['data'].replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data) 
                         st = decoded_data + st
-                    cleantext = st.decode("utf-8").replace("\n"," ").strip()
-                    ct = cleantext.split()
+                    clean = re.compile('<.*?>')
+                    cleantext = st.decode("utf-8")
+                    clss = re.sub(clean, '', cleantext)
+                    ct = clss.replace("\n"," ").strip().split()
                     sub = ' '.join(ct[:100])
                     reply = await summary(sub)
                     msgs = {
