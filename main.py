@@ -162,7 +162,7 @@ async def getEmail(uidx, idx):
                         st = decoded_data + st
                     cleantext = st.decode("utf-8").replace("\n"," ").strip()
                     ct = cleantext.split()
-                    sub = ' '.join(ct[:200])
+                    sub = ' '.join(ct[:100])
                     reply = await summary(sub)
                     msgs = {
                     "labels":labels,

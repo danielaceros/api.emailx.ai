@@ -1,2 +1,4 @@
 .env
 .txt
+credentials.json
+requirements.json
