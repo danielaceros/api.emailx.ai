@@ -53,7 +53,7 @@ def oauth2callback():
 
     flow = InstalledAppFlow.from_client_secrets_file(
         "credentials.json", scopes=SCOPES, state=state)
-    flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+    flow.redirect_uri = "http://api.emailx.es/v1/oauth2callback"
     authorization_response = flask.request.url
     flow.fetch_token(authorization_response=authorization_response)
     credentials = flow.credentials
@@ -76,7 +76,7 @@ async def main():
       flow = InstalledAppFlow.from_client_secrets_file(
           "credentials.json", SCOPES
       )
-      flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+      flow.redirect_uri = "http://api.emailx.es/v1/oauth2callback"
       authorization_url, state = flow.authorization_url(
           acces_type="offline",
           include_granted_scopes="true"
