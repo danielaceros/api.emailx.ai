@@ -46,7 +46,7 @@ nest_asyncio.apply()
 def status():
     return "<p>🤖 Server Running...</p>"
 
-@app.route("/v1/oauthconsent")
+@app.route("/v1/oauth2callback")
 def oauthconsent():
     state = flask.session['state']
 
@@ -75,7 +75,7 @@ async def main():
       flow = InstalledAppFlow.from_client_secrets_file(
           "credentials.json", SCOPES
       )
-      flow.redirect_uri = "https://api.emailx.es/v1/oauthconsent"
+      flow.redirect_uri = "https://api.emailx.es/v1/oauth2callback"
       authorization_url, state = flow.authorization_url(
           acces_type="offline",
           include_granted_scopes="true"
