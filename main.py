@@ -172,7 +172,6 @@ async def getEmail(uidx, idx):
                     "snippet":snippet,
                     "summary":reply
                     }
-                    print(msgs)
                     return msgs
             except:
                 pass
@@ -184,6 +183,7 @@ async def getEmail(uidx, idx):
 async def summary(sub):
     openai.organization = os.getenv('ORG_KEY')
     openai.api_key = os.getenv('API_KEY')
+    print("hol")
     msg = [
             {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
             ]
