@@ -46,6 +46,16 @@ nest_asyncio.apply()
 def status():
     return "<p>🤖 Server Running...</p>"
 
+@app.route("v1/gpt")
+def gpt():
+    msg = [
+            {"role":"user","content":f"saluda"},
+            ]
+    chat = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo", messages=msg
+    )
+    return chat
+
 @app.route("/v1/oauth2callback")
 def oauth2callback():
     uid = flask.session['uid']
@@ -186,9 +196,6 @@ async def summary(sub):
     msg = [
             {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
             ]
-    print(msg)
-    print(os.getenv('ORG_KEY'))
-    print(os.getenv('API_KEY'))
     chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=msg
     )
