@@ -127,6 +127,7 @@ async def getEmail(uidx, idx):
             creds = Credentials.from_authorized_user_file(uid+".json", SCOPES)
             service = build("gmail", "v1", credentials=creds)
             txt = service.users().messages().get(userId='me', id=id).execute()
+            print(txt)
             try: 
                 payload = txt['payload'] 
                 snippet = txt['snippet']
