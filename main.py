@@ -47,12 +47,12 @@ def status():
     return "<p>🤖 Server Running...</p>"
 
 @app.route("/v1/oauth2callback")
-def oauthconsent():
+def oauth2callback():
     state = flask.session['state']
 
     flow = InstalledAppFlow.from_client_secrets_file(
         "credentials.json", scopes=SCOPES, state=state)
-    flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+    flow.redirect_uri = flask.url_for('/v1/oauth2callback', _external=True)
     authorization_response = flask.request.url
     flow.fetch_token(authorization_response=authorization_response)
     credentials = flow.credentials
