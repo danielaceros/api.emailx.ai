@@ -33,7 +33,7 @@ from googleapiclient.errors import HttpError
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 
-webbrowser.register('chrome', None, webbrowser.BackgroundBrowser("/usr/bin/chromium"),1)
+webbrowser.register('chrome', None, webbrowser.BackgroundBrowser("/usr/bin/chromium"))
 app = Flask(__name__)
 CORS(app)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
