@@ -46,7 +46,7 @@ nest_asyncio.apply()
 def status():
     return "<p>🤖 Server Running...</p>"
 
-@app.route("v1/gpt")
+@app.route("/v1/gpt")
 def gpt():
     msg = [
             {"role":"user","content":f"saluda"},
