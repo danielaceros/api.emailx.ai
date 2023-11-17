@@ -4,6 +4,7 @@ from flask import Flask, request, redirect
 from flask_cors import CORS
 import os
 import traceback
+from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 from googleapiclient.discovery import build 
 from google_auth_oauthlib.flow import InstalledAppFlow 
@@ -39,6 +40,7 @@ CORS(app)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 urls = []
 nest_asyncio.apply()
+oauth = OAuth(app)
 
 @app.route("/v1/test")
 def status():
@@ -59,11 +61,7 @@ async def main():
       flow = InstalledAppFlow.from_client_secrets_file(
           "credentials.json", SCOPES
       )
-      creds = flow.run_local_server(host='localhost',
-        port=8080, 
-        authorization_prompt_message='Please visit this URL: {url}', 
-        success_message='The auth flow is complete; you may close this window.',
-        open_browser=False)
+      creds = flow.run_local_server()
       with open(uid+".json", "w") as token:
         token.write(creds.to_json())
       return {"user":uid, "credentials":uid+'.json'}
