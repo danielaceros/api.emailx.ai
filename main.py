@@ -1,4 +1,6 @@
-from flask import Flask, request
+from distutils import errors
+from time import perf_counter
+from flask import Flask, request, redirect
 from flask_cors import CORS
 import os
 import traceback
@@ -8,144 +10,162 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request 
 import pickle 
 import os.path 
+import nest_asyncio
 import base64 
 import json
+import httplib2
+import requests_async as res
 import openai
 import logging
+import asyncio
+import aiohttp
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+from apiclient.discovery import build
+import os.path
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 
-# Define the SCOPES. If modifying it, delete the token.pickle file. 
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'] 
-
 app = Flask(__name__)
 CORS(app)
-
+SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+urls = []
+nest_asyncio.apply()
 
 @app.route("/v1/test")
 def status():
     return "<p>🤖 Server Running...</p>"
 
-@app.route("/v1/getsummary")
-def getEmails(): 
-    # Variable creds will store the user access token. 
-    # If no valid token found, we will create one. 
-    args = request.args.get("r")
-    if args == None:
-        args = 1
-    creds = None
+@app.route("/v1/oauth", methods=['GET', 'POST'])
+async def main():
+  uid = request.args.get("uid")
+  creds = None
+  if os.path.exists(uid+".json"):
+    creds = Credentials.from_authorized_user_file(uid+".json", SCOPES)
+    return {"user":uid, "credentials":uid+'.json'}
+  if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+      creds.refresh(Request())
+      return {"user":uid, "credentials":uid+'.json'}
+    else:
+      flow = InstalledAppFlow.from_client_secrets_file(
+          "credentials.json", SCOPES
+      )
+      creds = flow.run_local_server(port=0)
+      with open(uid+".json", "w") as token:
+        token.write(creds.to_json())
+      return {"user":uid, "credentials":uid+'.json'}
 
-    # The file token.pickle contains the user access token. 
-    # Check if it exists 
-    if os.path.exists('token.pickle'): 
+@app.route("/v1/listemails")
+async def listEmails(): 
+    try:
+        uid = request.args.get("uid")
+        n = request.args.get("n")
+        creds = None
+        if os.path.exists(uid+".json"):
+            creds = Credentials.from_authorized_user_file(uid+".json", SCOPES)
+            service = build("gmail", "v1", credentials=creds)
+            results = service.users().messages().list(maxResults=n, userId="me").execute()
+            msg = results.get("messages")
+            rs = []
+            for m in msg:
+                r = await getEmail(uid, m['id'])
+                if(r):
+                    rs.append(r)
+            return rs
+        else:
+            pass
+            return "None"
 
-        # Read the token from the file and store it in the variable creds 
-        with open('token.pickle', 'rb') as token: 
-            creds = pickle.load(token) 
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return "None"
 
-    # If credentials are not available or are invalid, ask the user to log in. 
-    if not creds or not creds.valid: 
-        if creds and creds.expired and creds.refresh_token: 
-            creds.refresh(Request()) 
-        else: 
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES) 
-            creds = flow.run_local_server(port=0) 
+@app.route("/v1/getemail")
+async def getEmail(uidx, idx): 
+    try:
+        uid2 = request.args.get("uid")
+        id2 = request.args.get("id")
+        if(uid2 and id2 == None):
+            uid = uidx
+            id = idx
+        else:
+            uid = uid2
+            id = id2
+        creds = None
+        if os.path.exists(uid+".json"):
+            creds = Credentials.from_authorized_user_file(uid+".json", SCOPES)
+            service = build("gmail", "v1", credentials=creds)
+            txt = service.users().messages().get(userId='me', id=id).execute()
+            try: 
+                payload = txt['payload'] 
+                snippet = txt['snippet']
+                headers = payload['headers'] 
+                labels = txt['labelIds']
 
-        # Save the access token in token.pickle file for the next run 
-        with open('token.pickle', 'wb') as token: 
-            pickle.dump(creds, token) 
+                if 'UNREAD' in labels:
+                    for d in headers: 
+                        if d['name'] == 'Subject': 
+                            subject = d['value'] 
+                        if d['name'] == 'From': 
+                            sender = d['value'] 
+                        if d['name'] == 'Date': 
+                            date = d['value'] 
 
-    # Connect to the Gmail API 
-    service = build('gmail', 'v1', credentials=creds) 
-
-    # request a list of all the messages 
-    result = service.users().messages().list(maxResults=int(args)+1, userId='me').execute() 
-
-    # We can also pass maxResults to get any number of emails. Like this: 
-    # result = service.users().messages().list(maxResults=200, userId='me').execute() 
-    messages = result.get('messages') 
-
-    # messages is a list of dictionaries where each dictionary contains a message id. 
-    msgslist = []
-    # iterate through all the messages 
-    for msg in messages: 
-        # Get the message from its id 
-        txt = service.users().messages().get(userId='me', id=msg['id']).execute()
-        # Use try-except to avoid any Errors 
-        try: 
-            # Get value of 'payload' from dictionary 'txt' 
-            payload = txt['payload'] 
-            snippet = txt['snippet']
-            headers = payload['headers'] 
-            labels = txt['labelIds']
-
-            if 'UNREAD' in labels:
-                # Look for Subject and Sender Email in the headers 
-                for d in headers: 
-                    if d['name'] == 'Subject': 
-                        subject = d['value'] 
-                    if d['name'] == 'From': 
-                        sender = d['value'] 
-                    if d['name'] == 'Date': 
-                        date = d['value'] 
-
-                # The Body of the message is in Encrypted format. So, we have to decode it. 
-                # Get the data and decode it with base 64 decoder. 
-                st = b''
-                if payload.get('parts') != None:
-                    parts = payload['parts'][0]
-                    if(parts['body']['size']) != 0:
-                        data = parts['body']['data'].replace("-","+").replace("_","/") 
+                    st = b''
+                    if payload.get('parts') != None:
+                        parts = payload['parts'][0]
+                        if(parts['body']['size']) != 0:
+                            data = parts['body']['data'].replace("-","+").replace("_","/") 
+                            decoded_data = base64.b64decode(data) 
+                            st = decoded_data + st
+                        else:
+                            data = parts['parts']
+                            for d in data:
+                                for i in d['parts']:
+                                    data = i['body']['data'].replace("-","+").replace("_","/") 
+                                    decoded_data = base64.b64decode(data) 
+                                    st = decoded_data + st
+                    else:
+                        data = payload['body']['data'].replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data) 
                         st = decoded_data + st
-                    else:
-                        data = parts['parts']
-                        for d in data:
-                            for i in d['parts']:
-                                data = i['body']['data'].replace("-","+").replace("_","/") 
-                                decoded_data = base64.b64decode(data) 
-                                st = decoded_data + st
-                else:
-                    data = payload['body']['data'].replace("-","+").replace("_","/") 
-                    decoded_data = base64.b64decode(data) 
-                    st = decoded_data + st
-                # Now, the data obtained is in lxml. So, we will parse 
-                # it with BeautifulSoup library 
-
-                cleantext = st.decode("utf-8").replace("\n"," ").strip()
-                ct = cleantext.split()
-                sub = ' '.join(ct[:200])
-                openai.organization = os.getenv('ORG_KEY')
-                openai.api_key = os.getenv('API_KEY')
-                msg = [
-                    {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
-                    ]
-                chat = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", messages=msg
-                )
-                reply = chat.choices[0].message.content
-                # Printing the subject, sender's email and message 
-                msgs = {
+                    cleantext = st.decode("utf-8").replace("\n"," ").strip()
+                    ct = cleantext.split()
+                    sub = ' '.join(ct[:200])
+                    reply = await summary(sub)
+                    msgs = {
                     "labels":labels,
                     "sender":sender,
                     "date":date,
                     "subject":subject,
                     "snippet":snippet,
                     "summary":reply
-                }
-                if msgs:
-                    msgslist.append(msgs)
-                else:
-                    pass
-            else:
+                    }
+                    return msgs
+            except:
                 pass
-        except Exception as e: 
-            logging.error(traceback.format_exc())
-    try:
-        return msgslist
-    except Exception as e:
-        logging.error(traceback.format_exc())
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+
+@app.route("/v1/summaryemail")
+async def summary(sub):
+    openai.organization = os.getenv('ORG_KEY')
+    openai.api_key = os.getenv('API_KEY')
+    msg = [
+            {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
+            ]
+    chat = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo", messages=msg
+    )
+    return chat.choices[0].message.content
 
 if __name__ == "__main__":
-   app.run(host='0.0.0.0',port=5001)
+   app.run(host='0.0.0.0',port=5000)
