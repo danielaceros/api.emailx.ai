@@ -39,7 +39,6 @@ CORS(app)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 urls = []
 nest_asyncio.apply()
-oauth = OAuth(app)
 
 @app.route("/v1/test")
 def status():
