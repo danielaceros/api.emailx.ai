@@ -48,7 +48,7 @@ def status():
 
 @app.route("/v1/oauth2callback")
 def oauth2callback():
-    uid = request.args.get("uid")
+    uid = flask.session['uid']
     state = flask.session['state']
     flow = InstalledAppFlow.from_client_secrets_file(
         "credentials.json", scopes=SCOPES, state=state)
@@ -80,7 +80,8 @@ async def main():
           access_type="offline",
       )
       flask.session['state'] = state
-      return redirect(authorization_url+"?uid="+uid)
+      flask.session['uid'] = uid
+      return redirect(authorization_url)
 
 
 @app.route("/v1/listemails")
