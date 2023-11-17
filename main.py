@@ -63,7 +63,7 @@ async def main():
         port=8080, 
         authorization_prompt_message='Please visit this URL: {url}', 
         success_message='The auth flow is complete; you may close this window.',
-        open_browser=True)
+        open_browser=False)
       with open(uid+".json", "w") as token:
         token.write(creds.to_json())
       return {"user":uid, "credentials":uid+'.json'}
