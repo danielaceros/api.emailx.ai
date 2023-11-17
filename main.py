@@ -55,7 +55,8 @@ def oauth2callback():
     flow.redirect_uri = "https://api.emailx.es/v1/oauth2callback"
     authorization_response = flask.request.url
     flow.fetch_token(authorization_response=authorization_response)
-    credentials = flow.credentials
+    credentials = flow.credentials.refresh_token
+    print(credentials)
     cr = credentials.to_json() 
     with open(uid+".json", "w+") as c:
         c.write(cr)
@@ -79,6 +80,7 @@ async def main():
       flow.redirect_uri = "https://api.emailx.es/v1/oauth2callback"
       authorization_url, state = flow.authorization_url(
           access_type="offline",
+          prompt="consent"
       )
       flask.session['state'] = state
       flask.session['uid'] = uid
