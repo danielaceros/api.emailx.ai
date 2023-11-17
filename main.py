@@ -48,6 +48,7 @@ def status():
 
 @app.route("/v1/oauth2callback")
 def oauth2callback():
+    print("h")
     state = flask.session['state']
 
     flow = InstalledAppFlow.from_client_secrets_file(
