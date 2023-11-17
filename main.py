@@ -57,7 +57,11 @@ async def main():
       flow = InstalledAppFlow.from_client_secrets_file(
           "credentials.json", SCOPES
       )
-      creds = flow.run_local_server(port=0)
+      creds = flow.run_local_server(host='localhost',
+        port=8080, 
+        authorization_prompt_message='Please visit this URL: {url}', 
+        success_message='The auth flow is complete; you may close this window.',
+        open_browser=True)
       with open(uid+".json", "w") as token:
         token.write(creds.to_json())
       return {"user":uid, "credentials":uid+'.json'}
