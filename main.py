@@ -4,7 +4,6 @@ from flask import Flask, request, redirect
 import flask
 from flask_cors import CORS
 import os
-import traceback
 from dotenv import load_dotenv
 from googleapiclient.discovery import build 
 from google_auth_oauthlib.flow import InstalledAppFlow 
@@ -16,12 +15,9 @@ import os.path
 import nest_asyncio
 import base64 
 import json
-import httplib2
 import requests_async as res
 import openai
 import logging
-import asyncio
-import aiohttp
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from apiclient.discovery import build
