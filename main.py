@@ -9,6 +9,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
 import pickle 
+import webbrowser    
 import os.path 
 import nest_asyncio
 import base64 
@@ -32,6 +33,7 @@ from googleapiclient.errors import HttpError
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 
+webbrowser.register('chrome', None, webbrowser.BackgroundBrowser("/usr/bin/chromium"),1)
 app = Flask(__name__)
 CORS(app)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
