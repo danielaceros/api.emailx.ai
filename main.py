@@ -183,13 +183,13 @@ async def getEmail(uidx, idx):
 async def summary(sub):
     openai.organization = os.getenv('ORG_KEY')
     openai.api_key = os.getenv('API_KEY')
-    print("hol")
     msg = [
             {"role":"user","content":f"resume en una línea el contenido del siguiente email: {sub}"},
             ]
     chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=msg
     )
+    print(chat)
     return chat.choices[0].message.content
 
 if __name__ == "__main__":
