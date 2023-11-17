@@ -1,6 +1,7 @@
 from distutils import errors
 from time import perf_counter
 from flask import Flask, request, redirect
+import flask
 from flask_cors import CORS
 import os
 import traceback
@@ -35,6 +36,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 webbrowser.register('chrome', None, webbrowser.BackgroundBrowser("/usr/bin/chromium"))
 app = Flask(__name__)
+app.secret_key = '123'
 CORS(app)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 urls = []
@@ -43,6 +45,20 @@ nest_asyncio.apply()
 @app.route("/v1/test")
 def status():
     return "<p>🤖 Server Running...</p>"
+
+@app.route("/v1/oauthconsent")
+def oauthconsent():
+    state = flask.session['state']
+
+    flow = InstalledAppFlow.from_client_secrets_file(
+        "credentials.json", scopes=SCOPES, state=state)
+    flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+    authorization_response = flask.request.url
+    flow.fetch_token(authorization_response=authorization_response)
+    credentials = flow.credentials
+    cr = credentials.to_json() 
+    with open(credentials.client_id+".json") as c:
+        c.write(cr)
 
 @app.route("/v1/oauth", methods=['GET', 'POST'])
 async def main():
@@ -59,10 +75,14 @@ async def main():
       flow = InstalledAppFlow.from_client_secrets_file(
           "credentials.json", SCOPES
       )
-      creds = flow.run_local_server()
-      with open(uid+".json", "w") as token:
-        token.write(creds.to_json())
-      return {"user":uid, "credentials":uid+'.json'}
+      flow.redirect_uri = "https://api.emailx.es/v1/oauthconsent"
+      authorization_url, state = flow.authorization_url(
+          acces_type="offline",
+          include_granted_scopes="true"
+      )
+      flask.session['state'] = state
+      return redirect(authorization_url)
+
 
 @app.route("/v1/listemails")
 async def listEmails(): 
