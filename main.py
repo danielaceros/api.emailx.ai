@@ -40,19 +40,11 @@ urls = []
 nest_asyncio.apply()
 
 @app.route("/v1/test")
-def status():
+async def status():
     return "<p>🤖 Server Running...</p>"
 
-@app.route("/v1/isuserouath")
-def isuser():
-    uid = request.args.get("uid")
-    if os.path.exists(uid+".json"):
-        return "True"
-    else:
-        return "False"
-
 @app.route("/v1/oauth2callback")
-def oauth2callback():
+async def oauth2callback():
     uid = flask.session['uid']
     state = flask.session['state']
     flow = InstalledAppFlow.from_client_secrets_file(
@@ -112,8 +104,7 @@ async def listEmails():
             pass
             return "None"
 
-    except HttpError as error:
-        print(f"An error occurred: {error}")
+    except Exception:
         return "None"
 
 @app.route("/v1/getemail")
@@ -137,7 +128,7 @@ async def getEmail(uidx, idx):
                 snippet = txt['snippet']
                 headers = payload['headers'] 
                 labels = txt['labelIds']
-
+                url = "https://mail.google.com/mail/#inbox/"+id
                 if 'UNREAD' in labels:
                     for d in headers: 
                         if d['name'] == 'Subject': 
@@ -177,7 +168,8 @@ async def getEmail(uidx, idx):
                     "date":date,
                     "subject":subject,
                     "snippet":snippet,
-                    "summary":reply
+                    "summary":reply,
+                    "url":url
                     }
                     return msgs
             except:
