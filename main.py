@@ -57,6 +57,14 @@ async def testgpt():
     )
     return chat.choices[0].message.content
 
+@app.route("/v1/testuser")
+async def testgpt():
+    uid = request.args.get('uid')
+    if os.path.exists(uid+".json"):
+        return "True"
+    else:
+        return "False"
+
 @app.route("/v1/oauth2callback")
 async def oauth2callback():
     if 'uid' in flask.session:
@@ -77,7 +85,8 @@ async def oauth2callback():
     cr = credentials.to_json()
     with open(uid+".json", "w+") as c:
         c.write(cr)
-    redirect("https://app.emailx.es")
+    return redirect("https://app.emailx.es")
+    
 
 @app.route("/v1/oauth", methods=['GET', 'POST'])
 async def main():
