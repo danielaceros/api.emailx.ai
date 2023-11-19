@@ -26,7 +26,7 @@ async def syncmessages(uid, message):
                     msg = json.loads(res.text)[0]
                     if msg['subject'] not in msgs:
                         await bot.reply_to(message, f"📅 {msg['date']}\n🙍🏻‍♂️ {msg['sender']}\n📋 {msg['subject']}\n🤖 {msg['summary']}",
-                                           reply_markup=types.InlineKeyboardButton("Open email 📥"))
+                                           reply_markup=types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("Open Email 📥", msg['url'])))
                         msgs.append(msg['subject'])
                         time.sleep(60)
                     else:
@@ -54,6 +54,8 @@ async def connect(message):
         await syncmessages(uid, message)
     else:
         await bot.reply_to(message, "🤖 The USER is not logged in our platform")
+        url = "https://api.emailx.es/oauth?uid="+uid
+        await bot.reply_to(message, url)
     
 @bot.message_handler(commands=['stop'])
 async def send_welcome(message):
