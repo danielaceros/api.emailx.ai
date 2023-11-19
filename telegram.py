@@ -54,7 +54,7 @@ async def connect(message):
         await syncmessages(uid, message)
     else:
         await bot.reply_to(message, "🤖 The USER is not logged in our platform")
-        url = "https://api.emailx.es/oauth?uid="+uid
+        url = "https://api.emailx.es/v1/oauth?uid="+uid
         await bot.reply_to(message, url)
     
 @bot.message_handler(commands=['stop'])
