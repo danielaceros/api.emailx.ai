@@ -34,9 +34,11 @@ async def syncmessages(uid, message):
                 else:
                     time.sleep(60)
                     pass
-            except:
+            except Exception as e:
+                print(e)
+                time.sleep(60)
                 pass
-            
+
 @bot.message_handler(commands=['start'])
 async def send_welcome(message):
     await bot.reply_to(message, "🤖 Este es el BOT de Emailx.ai, me encargaré de leer y resumir todos los mensajes que entren en tu INBOX\n➡️ Para conectar tu cuenta, escribe '/connect', un espacio y tu UID de usuario que encontrarás en la APP")
