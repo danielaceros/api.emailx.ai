@@ -8,6 +8,7 @@ import requests as r
 import json
 import threading
 from time import sleep
+from telebot import types
 import logging
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -17,7 +18,6 @@ bot = AsyncTeleBot(BOT_TOKEN)
 os.environ['isActive'] = "False"
 logging.basicConfig(level=logging.DEBUG)
 
-
 async def syncmessages(uid, message):
         while os.environ['isActive'] == "True":
             try:
@@ -25,7 +25,8 @@ async def syncmessages(uid, message):
                 if res.text != "None":
                     msg = json.loads(res.text)[0]
                     if msg['subject'] not in msgs:
-                        await bot.reply_to(message, f"📅 {msg['date']}\n🙍🏻‍♂️ {msg['sender']}\n📋 {msg['subject']}\n🤖 {msg['summary']}")
+                        await bot.reply_to(message, f"📅 {msg['date']}\n🙍🏻‍♂️ {msg['sender']}\n📋 {msg['subject']}\n🤖 {msg['summary']}",
+                                           reply_markup=types.InlineKeyboardButton("Open email 📥"))
                         msgs.append(msg['subject'])
                         time.sleep(60)
                     else:
