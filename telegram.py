@@ -19,21 +19,24 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def syncmessages(uid, message):
-    while os.environ['isActive'] == "True":
-        res = r.get("https://api.emailx.es/v1/listemails?uid="+uid+"&n=1", timeout=60)
-        if res.text != "[]":
-            msg = json.loads(res.text)[0]
-            if msg['subject'] not in msgs:
-                await bot.reply_to(message, f"📅 {msg['date']}\n🙍🏻‍♂️ {msg['sender']}\n📋 {msg['subject']}\n🤖 {msg['summary']}")
-                msgs.append(msg['subject'])
-                time.sleep(60)
-            else:
-                time.sleep(60)
+        while os.environ['isActive'] == "True":
+            try:
+                res = r.get("https://api.emailx.es/v1/listemails?uid="+uid+"&n=1", timeout=60)
+                if res.text != "[]":
+                    msg = json.loads(res.text)[0]
+                    if msg['subject'] not in msgs:
+                        await bot.reply_to(message, f"📅 {msg['date']}\n🙍🏻‍♂️ {msg['sender']}\n📋 {msg['subject']}\n🤖 {msg['summary']}")
+                        msgs.append(msg['subject'])
+                        time.sleep(60)
+                    else:
+                        time.sleep(60)
+                        pass
+                else:
+                    time.sleep(60)
+                    pass
+            except:
                 pass
-        else:
-            time.sleep(60)
-            pass
-
+            
 @bot.message_handler(commands=['start'])
 async def send_welcome(message):
     await bot.reply_to(message, "🤖 Este es el BOT de Emailx.ai, me encargaré de leer y resumir todos los mensajes que entren en tu INBOX\n➡️ Para conectar tu cuenta, escribe '/connect', un espacio y tu UID de usuario que encontrarás en la APP")
