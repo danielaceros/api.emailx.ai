@@ -59,8 +59,15 @@ async def testgpt():
 
 @app.route("/v1/oauth2callback")
 async def oauth2callback():
-    uid = flask.session['uid']
-    state = flask.session['state']
+    if 'uid' in flask.session:
+        uid = flask.session['uid']
+    else:
+        uid = request.args.get('uid')
+    if 'state' in flask.session:
+        state = flask.session['state']
+    else:
+        state = request.args.get('state')
+        
     flow = InstalledAppFlow.from_client_secrets_file(
         "credentials.json", scopes=SCOPES, state=state)
     flow.redirect_uri = "https://api.emailx.es/v1/oauth2callback"
@@ -118,7 +125,7 @@ async def oauthtlgrm():
       )
       flask.session['state'] = state
       flask.session['uid'] = uid
-      return authorization_url
+      return authorization_url+"&uid="+uid+"&state="+state
 
 @app.route("/v1/listemails")
 async def listEmails(): 
