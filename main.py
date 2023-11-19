@@ -9,6 +9,9 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
 import pickle 
+from firebase_admin import auth
+import firebase_admin
+from firebase_admin import credentials
 import backoff
 import re
 import webbrowser    
@@ -32,14 +35,14 @@ from googleapiclient.errors import HttpError
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
+cred = credentials.Certificate("sdk.json")
+firebase_admin.initialize_app(cred)
 
-webbrowser.register('chrome', None, webbrowser.BackgroundBrowser("/usr/bin/chromium"))
 app = Flask(__name__)
 app.secret_key = '123'
 CORS(app)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 urls = []
-nest_asyncio.apply()
 
 @app.route("/v1/test")
 async def status():
@@ -92,6 +95,10 @@ async def oauth2callback():
 async def main():
   uid = request.args.get("uid")
   creds = None
+  try:
+    user = auth.get_user(uid)
+  except Exception as e:
+      return e
   if os.path.exists(uid+".json"):
     creds = Credentials.from_authorized_user_file(uid+".json", SCOPES)
     return {"user":uid, "credentials":uid+'.json'}
