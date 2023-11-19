@@ -113,7 +113,12 @@ async def listEmails():
                 r = await getEmail(uid, m['id'])
                 if(r):
                     rs.append(r)
-            return rs
+            if rs:
+                return rs
+            elif not rs:
+                return "None"
+            else:
+                return "None"
         else:
             pass
             return "None"
