@@ -43,6 +43,18 @@ nest_asyncio.apply()
 async def status():
     return "<p>🤖 Server Running...</p>"
 
+@app.route("/v1/testgpt")
+async def testgpt():
+    openai.organization = os.getenv('ORG_KEY')
+    openai.api_key = os.getenv('API_KEY')
+    msg = [
+            {"role":"user","content":f"saluda"},
+            ]
+    chat = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo", messages=msg
+    )
+    return chat.choices[0].message.content
+
 @app.route("/v1/oauth2callback")
 async def oauth2callback():
     uid = flask.session['uid']
