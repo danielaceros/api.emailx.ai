@@ -55,7 +55,7 @@ async def send_welcome(message):
     await bot.reply_to(message, "🤖 BOT stopped")
 
 async def start():
-    await bot.infinity_polling()
+    await bot.infinity_polling(timeout=60, long_polling_timeout = 300)
 
 if __name__== '__main__':
     try:
