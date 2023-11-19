@@ -9,6 +9,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
 import pickle 
+import backoff
 import re
 import webbrowser    
 import os.path 
@@ -22,6 +23,7 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from apiclient.discovery import build
 import os.path
+import requests
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -190,6 +192,7 @@ async def getEmail(uidx, idx):
     except HttpError as error:
         print(f"An error occurred: {error}")
 
+@backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_time=30)
 @app.route("/v1/summaryemail")
 async def summary(sub):
     openai.organization = os.getenv('ORG_KEY')
