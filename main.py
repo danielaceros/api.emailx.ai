@@ -58,7 +58,7 @@ async def testgpt():
     return chat.choices[0].message.content
 
 @app.route("/v1/testuser")
-async def testgpt():
+async def testuser():
     uid = request.args.get('uid')
     if os.path.exists(uid+".json"):
         return "True"
