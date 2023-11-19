@@ -67,7 +67,7 @@ async def oauth2callback():
         state = flask.session['state']
     else:
         state = request.args.get('state')
-        
+
     flow = InstalledAppFlow.from_client_secrets_file(
         "credentials.json", scopes=SCOPES, state=state)
     flow.redirect_uri = "https://api.emailx.es/v1/oauth2callback"
@@ -102,30 +102,6 @@ async def main():
       flask.session['state'] = state
       flask.session['uid'] = uid
       return redirect(authorization_url)
-
-@app.route("/v1/oauthtlgrm", methods=['GET', 'POST'])
-async def oauthtlgrm():
-  uid = request.args.get("uid")
-  creds = None
-  if os.path.exists(uid+".json"):
-    creds = Credentials.from_authorized_user_file(uid+".json", SCOPES)
-    return {"user":uid, "credentials":uid+'.json'}
-  if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-      creds.refresh(Request())
-      return {"user":uid, "credentials":uid+'.json'}
-    else:
-      flow = InstalledAppFlow.from_client_secrets_file(
-          "credentials.json", SCOPES
-      )
-      flow.redirect_uri = "https://api.emailx.es/v1/oauth2callback"
-      authorization_url, state = flow.authorization_url(
-          access_type="offline",
-          prompt="consent"
-      )
-      flask.session['state'] = state
-      flask.session['uid'] = uid
-      return authorization_url+"&uid="+uid+"&state="+state
 
 @app.route("/v1/listemails")
 async def listEmails(): 
