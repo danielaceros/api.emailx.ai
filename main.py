@@ -97,7 +97,7 @@ async def main():
       return redirect(authorization_url)
 
 @app.route("/v1/oauthtlgrm", methods=['GET', 'POST'])
-async def main():
+async def oauthtlgrm():
   uid = request.args.get("uid")
   creds = None
   if os.path.exists(uid+".json"):
