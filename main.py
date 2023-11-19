@@ -43,6 +43,14 @@ nest_asyncio.apply()
 def status():
     return "<p>🤖 Server Running...</p>"
 
+@app.route("/v1/isuserouath")
+def isuser():
+    uid = request.args.get("uid")
+    if os.path.exists(uid+".json"):
+        return "True"
+    else:
+        return "False"
+
 @app.route("/v1/oauth2callback")
 def oauth2callback():
     uid = flask.session['uid']
