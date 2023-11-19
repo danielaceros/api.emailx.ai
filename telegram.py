@@ -22,7 +22,9 @@ async def syncmessages(uid, message):
         while os.environ['isActive'] == "True":
             try:
                 res = r.get("https://api.emailx.es/v1/listemails?uid="+uid+"&n=1", timeout=60)
-                if res.text != "[]":
+                print(res.text)
+                if res.text != "None":
+                    print("kj")
                     msg = json.loads(res.text)[0]
                     if msg['subject'] not in msgs:
                         await bot.reply_to(message, f"📅 {msg['date']}\n🙍🏻‍♂️ {msg['sender']}\n📋 {msg['subject']}\n🤖 {msg['summary']}")
